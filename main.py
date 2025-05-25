@@ -61,7 +61,7 @@ if "image_bytes" not in st.session_state:
 if "reset_uploader" not in st.session_state:
     st.session_state["reset_uploader"] = 0
 
-file_type = st.radio("Select file type", ("PDF", "Image"))
+file_type = st.radio("Select file type", ("PDF"))
 source_type = st.radio("Select source type", ("URL", "Local Upload"))
 
 input_url = ""
@@ -71,8 +71,8 @@ if source_type == "URL":
     input_url = st.text_area("Enter one or multiple URLs (separate with new lines)")
 else:
     uploaded_files = st.file_uploader(
-        "Upload one or more files", 
-        type=["pdf", "jpg", "jpeg", "png"], 
+        "Upload one or more PDF files", 
+        type=["pdf"], 
         accept_multiple_files=True,
         key=st.session_state["reset_uploader"]   # <-- KEY TO RESET UPLOADER
     )
