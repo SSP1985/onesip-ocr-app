@@ -154,7 +154,7 @@ if st.session_state["ocr_result"]:
             st.subheader(f"Input File {idx+1}")
             if file_type == "PDF":
                 st.markdown(f"**[Download PDF]({st.session_state['preview_src'][idx]})**")
-    st.info("PDF preview is blocked in Chrome. Click above to download and open the file.")
+                st.info("PDF preview is blocked in Chrome. Click above to download and open the file.")
             else:
                 if source_type == "Local Upload" and st.session_state["image_bytes"]:
                     st.image(st.session_state["image_bytes"][idx], use_column_width=True)
