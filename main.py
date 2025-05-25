@@ -28,7 +28,7 @@ load_dotenv()  # Ensure .env is loaded
 # Read the API key from the environment
 api_key = os.getenv("MISTRAL_API_KEY")
 if not api_key:
-    st.error("Missing API key! Please add your MISTRAL_API_KEY in a .env file.")
+    st.error("Missing API key! Please add your MISTRAL_API_KEY in a .env file or Streamlit Cloud secrets.")
     st.stop()
 
 st.markdown(
@@ -153,8 +153,20 @@ if st.session_state["ocr_result"]:
         with col1:
             st.subheader(f"Input File {idx+1}")
             if file_type == "PDF":
-                st.markdown(f"**[Download PDF]({st.session_state['preview_src'][idx]})**")
-                st.info("PDF preview is blocked in Chrome. Click above to download and open the file.")
+                pdf_src = st.session_state["preview_src"][idx]
+                if pdf_src.startswith("http"):
+                    st.markdown(
+                        f'<a href="{pdf_src}" target="_blank" '
+                        f'style="font-size:18px;font-weight:bold;color:{PRIMARY_COLOR};text-decoration:underline;">'
+                        '📄 Open PDF in New Tab</a>',
+                        unsafe_allow_html=True
+                    )
+                    st.info("Click above to view or download the PDF in a new tab.")
+                else:
+                    st.info(
+                        "For security reasons, browsers block the preview and download of uploaded PDFs. "
+                        "Please save your file after upload, or use a PDF reader on your computer."
+                    )
             else:
                 if source_type == "Local Upload" and st.session_state["image_bytes"]:
                     st.image(st.session_state["image_bytes"][idx], use_column_width=True)
