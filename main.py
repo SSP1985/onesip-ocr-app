@@ -6,7 +6,6 @@ import time
 from mistralai import Mistral
 from dotenv import load_dotenv
 
-# ----------------- CUSTOMIZE HERE --------------------
 APP_TITLE = "OneSIP OCR"
 APP_BRAND = "Made with ❤️ by OneSIP.in"
 APP_DESC = """
@@ -15,8 +14,7 @@ No key required: Secure API is built-in for OneSIP users!
 """
 SIDEBAR_BG = "#F8FAFC"
 PRIMARY_COLOR = "#3B82F6"
-MAX_UPLOAD_MB = 20   # <-- Change this if you want to lower the max PDF upload size per file
-# ------------------------------------------------------
+MAX_UPLOAD_MB = 20
 
 st.set_page_config(
     layout="wide",
@@ -24,18 +22,13 @@ st.set_page_config(
     page_icon="📝"
 )
 
-# --- Set maximum upload size ---
-st.session_state["max_upload_mb"] = MAX_UPLOAD_MB
-st.markdown(
-    f"<style>input[type='file']{{ max-width: 100%; }} .css-145kmo2 {{ font-size: 15px !important; }}</style>",
-    unsafe_allow_html=True
-)
+# ✨ Important notice for mobile users
+st.info("**Mobile Upload Tip:** If file upload doesn't work, try using Firefox (Android) or Safari (iOS). Chrome may not support file upload on some devices.")
+
 st.markdown(f"<p style='color:red;font-size:13px;'>Maximum PDF file size allowed: {MAX_UPLOAD_MB} MB per file.</p>", unsafe_allow_html=True)
-st.write("")
 
-load_dotenv()  # Ensure .env is loaded
+load_dotenv()
 
-# Read the API key from the environment
 api_key = os.getenv("MISTRAL_API_KEY")
 if not api_key:
     st.error("Missing API key! Please add your MISTRAL_API_KEY in a .env file or Streamlit Cloud secrets.")
@@ -52,7 +45,6 @@ st.markdown(
 with st.expander("About"):
     st.info(APP_DESC.strip())
 
-# Sidebar styling
 st.sidebar.markdown(
     f"<div style='background:{SIDEBAR_BG};padding:10px 15px;border-radius:15px;'>"
     "<h3>Welcome to OneSIP OCR</h3>"
@@ -61,7 +53,6 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-# --- Initialize session state variables ---
 if "ocr_result" not in st.session_state:
     st.session_state["ocr_result"] = []
 if "preview_src" not in st.session_state:
@@ -75,29 +66,26 @@ input_url = ""
 uploaded_files = []
 
 if source_type == "URL":
-    input_url = st.text_area("Enter one or multiple PDF URLs (separate with new lines)")
+    input_url = st.text_area("Paste PDF URLs here (one per line)")
 else:
     uploaded_files = st.file_uploader(
-        "Upload one or more PDF files", 
-        type=["pdf"], 
+        f"Upload PDFs (max {MAX_UPLOAD_MB} MB each)",
+        type=["pdf"],
         accept_multiple_files=True,
-        key=st.session_state["reset_uploader"]   # <-- KEY TO RESET UPLOADER
+        key=st.session_state["reset_uploader"]
     )
 
-# --- Add Process and Clear All buttons side by side ---
 col_process, col_clear = st.columns([1, 1])
 with col_process:
     process_clicked = st.button("Process", type="primary")
 with col_clear:
     clear_clicked = st.button("Clear All")
 
-# --- Clear session state if needed ---
 if clear_clicked:
     st.session_state["ocr_result"] = []
     st.session_state["preview_src"] = []
-    st.session_state["reset_uploader"] += 1   # <-- INCREMENT KEY TO RESET UPLOADER
+    st.session_state["reset_uploader"] += 1
 
-# --- Process logic ---
 if process_clicked:
     if source_type == "URL" and not input_url.strip():
         st.error("Please enter at least one valid PDF URL.")
@@ -111,7 +99,6 @@ if process_clicked:
         sources = input_url.split("\n") if source_type == "URL" else uploaded_files
 
         for idx, source in enumerate(sources):
-            # --- Memory/file size check for uploads ---
             if source_type == "Local Upload":
                 file_bytes = source.read()
                 file_size_mb = len(file_bytes) / (1024 * 1024)
@@ -144,7 +131,6 @@ if process_clicked:
                 st.session_state["ocr_result"].append(result_text)
                 st.session_state["preview_src"].append(preview_src)
 
-# --- Display OCR Results ---
 if st.session_state["ocr_result"]:
     for idx, result in enumerate(st.session_state["ocr_result"]):
         col1, col2 = st.columns([1, 1])
@@ -185,12 +171,5 @@ if st.session_state["ocr_result"]:
             json_data = json.dumps({"ocr_result": result}, ensure_ascii=False, indent=2)
             create_download_link(json_data, "application/json", f"OCR_Output_{idx+1}.json")
 
-# --- Hide Streamlit branding (optional) ---
-hide_streamlit_style = """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    .css-18e3th9 {padding-top: 1rem;}
-    </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+# (No risky CSS for input[type='file']!)
+
