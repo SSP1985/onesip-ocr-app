@@ -51,13 +51,15 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-# Initialize session state variables
+# --- Initialize session state variables ---
 if "ocr_result" not in st.session_state:
     st.session_state["ocr_result"] = []
 if "preview_src" not in st.session_state:
     st.session_state["preview_src"] = []
 if "image_bytes" not in st.session_state:
     st.session_state["image_bytes"] = []
+if "reset_uploader" not in st.session_state:
+    st.session_state["reset_uploader"] = 0
 
 file_type = st.radio("Select file type", ("PDF", "Image"))
 source_type = st.radio("Select source type", ("URL", "Local Upload"))
@@ -71,7 +73,8 @@ else:
     uploaded_files = st.file_uploader(
         "Upload one or more files", 
         type=["pdf", "jpg", "jpeg", "png"], 
-        accept_multiple_files=True
+        accept_multiple_files=True,
+        key=st.session_state["reset_uploader"]   # <-- KEY TO RESET UPLOADER
     )
 
 # --- Add Process and Clear All buttons side by side ---
@@ -86,8 +89,7 @@ if clear_clicked:
     st.session_state["ocr_result"] = []
     st.session_state["preview_src"] = []
     st.session_state["image_bytes"] = []
-    # No need for st.experimental_rerun()
-
+    st.session_state["reset_uploader"] += 1   # <-- INCREMENT KEY TO RESET UPLOADER
 
 # --- Process logic ---
 if process_clicked:
