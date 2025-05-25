@@ -153,16 +153,8 @@ if st.session_state["ocr_result"]:
         with col1:
             st.subheader(f"Input File {idx+1}")
             if file_type == "PDF":
-                st.markdown(
-                    f'<a href="{st.session_state["preview_src"][idx]}" target="_blank" '
-                    f'style="font-size:18px;font-weight:bold;color:{PRIMARY_COLOR};text-decoration:underline;">'
-                    '📄 Open PDF in New Tab</a>',
-                    unsafe_allow_html=True
-                )
-                st.info(
-                    "Click above to view or download the PDF in a new browser tab. "
-                    "Note: Some browsers may block inline previews of local uploads for security."
-                )
+                st.markdown(f"**[Download PDF]({st.session_state['preview_src'][idx]})**")
+                st.info("PDF preview is blocked in Chrome. Click above to download and open the file.")
             else:
                 if source_type == "Local Upload" and st.session_state["image_bytes"]:
                     st.image(st.session_state["image_bytes"][idx], use_column_width=True)
