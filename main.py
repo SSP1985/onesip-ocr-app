@@ -1,6 +1,18 @@
 import streamlit as st
-# Your online photo
+
+# --------- PAGE CONFIGURATION (MUST BE FIRST) ----------
+st.set_page_config(
+    layout="wide",
+    page_title="OneSIP OCR",
+    page_icon="📝"
+)
+# -------------------------------------------------------
+# Now you can display your image
 st.image("https://drive.google.com/uc?id=1gTnx6qQB54f6KeF3bEP67-HOnhY4INPN", width=120, caption="Sudheer Patibandla")
+
+# ...rest of your imports and code
+
+
 import os
 import base64
 import json
