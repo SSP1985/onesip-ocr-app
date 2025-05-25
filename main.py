@@ -55,13 +55,14 @@ st.markdown(
 with st.expander("About"):
     st.info(APP_DESC.strip())
 
-st.sidebar.markdown(
-    f"<div style='background:{SIDEBAR_BG};padding:10px 15px;border-radius:15px;'>"
-    "<h3>Welcome to OneSIP OCR</h3>"
-    "<p>Fast, accurate OCR for your PDFs.<br>No manual API key needed.</p>"
-    "</div>",
-    unsafe_allow_html=True
-)
+# REMOVE or comment this block:
+# st.sidebar.markdown(
+#     f"<div style='background:{SIDEBAR_BG};padding:10px 15px;border-radius:15px;'>"
+#     "<h3>Welcome to OneSIP OCR</h3>"
+#     "<p>Fast, accurate OCR for your PDFs.<br>No manual API key needed.</p>"
+#     "</div>",
+#     unsafe_allow_html=True
+# )
 
 if "ocr_result" not in st.session_state:
     st.session_state["ocr_result"] = []
