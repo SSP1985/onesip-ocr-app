@@ -15,6 +15,7 @@ No key required: Secure API is built-in for OneSIP users!
 """
 SIDEBAR_BG = "#F8FAFC"
 PRIMARY_COLOR = "#3B82F6"
+MAX_UPLOAD_MB = 20   # <-- Change this if you want to lower the max PDF upload size per file
 # ------------------------------------------------------
 
 st.set_page_config(
@@ -22,6 +23,15 @@ st.set_page_config(
     page_title=APP_TITLE,
     page_icon="📝"
 )
+
+# --- Set maximum upload size ---
+st.session_state["max_upload_mb"] = MAX_UPLOAD_MB
+st.markdown(
+    f"<style>input[type='file']{{ max-width: 100%; }} .css-145kmo2 {{ font-size: 15px !important; }}</style>",
+    unsafe_allow_html=True
+)
+st.markdown(f"<p style='color:red;font-size:13px;'>Maximum PDF file size allowed: {MAX_UPLOAD_MB} MB per file.</p>", unsafe_allow_html=True)
+st.write("")
 
 load_dotenv()  # Ensure .env is loaded
 
@@ -56,19 +66,16 @@ if "ocr_result" not in st.session_state:
     st.session_state["ocr_result"] = []
 if "preview_src" not in st.session_state:
     st.session_state["preview_src"] = []
-if "image_bytes" not in st.session_state:
-    st.session_state["image_bytes"] = []
 if "reset_uploader" not in st.session_state:
     st.session_state["reset_uploader"] = 0
 
-file_type = st.radio("Select file type", ("PDF"))
 source_type = st.radio("Select source type", ("URL", "Local Upload"))
 
 input_url = ""
 uploaded_files = []
 
 if source_type == "URL":
-    input_url = st.text_area("Enter one or multiple URLs (separate with new lines)")
+    input_url = st.text_area("Enter one or multiple PDF URLs (separate with new lines)")
 else:
     uploaded_files = st.file_uploader(
         "Upload one or more PDF files", 
@@ -88,50 +95,38 @@ with col_clear:
 if clear_clicked:
     st.session_state["ocr_result"] = []
     st.session_state["preview_src"] = []
-    st.session_state["image_bytes"] = []
     st.session_state["reset_uploader"] += 1   # <-- INCREMENT KEY TO RESET UPLOADER
 
 # --- Process logic ---
 if process_clicked:
     if source_type == "URL" and not input_url.strip():
-        st.error("Please enter at least one valid URL.")
+        st.error("Please enter at least one valid PDF URL.")
     elif source_type == "Local Upload" and not uploaded_files:
-        st.error("Please upload at least one file.")
+        st.error("Please upload at least one PDF file.")
     else:
         client = Mistral(api_key=api_key)
         st.session_state["ocr_result"] = []
         st.session_state["preview_src"] = []
-        st.session_state["image_bytes"] = []
 
         sources = input_url.split("\n") if source_type == "URL" else uploaded_files
 
         for idx, source in enumerate(sources):
-            if file_type == "PDF":
-                if source_type == "URL":
-                    document = {"type": "document_url", "document_url": source.strip()}
-                    preview_src = source.strip()
-                else:
-                    file_bytes = source.read()
-                    encoded_pdf = base64.b64encode(file_bytes).decode("utf-8")
-                    document = {
-                        "type": "document_url",
-                        "document_url": f"data:application/pdf;base64,{encoded_pdf}"
-                    }
-                    preview_src = f"data:application/pdf;base64,{encoded_pdf}"
+            # --- Memory/file size check for uploads ---
+            if source_type == "Local Upload":
+                file_bytes = source.read()
+                file_size_mb = len(file_bytes) / (1024 * 1024)
+                if file_size_mb > MAX_UPLOAD_MB:
+                    st.warning(f"{source.name} exceeds the max upload size of {MAX_UPLOAD_MB} MB. Skipped.")
+                    continue
+                encoded_pdf = base64.b64encode(file_bytes).decode("utf-8")
+                document = {
+                    "type": "document_url",
+                    "document_url": f"data:application/pdf;base64,{encoded_pdf}"
+                }
+                preview_src = f"data:application/pdf;base64,{encoded_pdf}"
             else:
-                if source_type == "URL":
-                    document = {"type": "image_url", "image_url": source.strip()}
-                    preview_src = source.strip()
-                else:
-                    file_bytes = source.read()
-                    mime_type = source.type
-                    encoded_image = base64.b64encode(file_bytes).decode("utf-8")
-                    document = {
-                        "type": "image_url",
-                        "image_url": f"data:{mime_type};base64,{encoded_image}"
-                    }
-                    preview_src = f"data:{mime_type};base64,{encoded_image}"
-                    st.session_state["image_bytes"].append(file_bytes)
+                document = {"type": "document_url", "document_url": source.strip()}
+                preview_src = source.strip()
 
             with st.spinner(f"Processing {source if source_type == 'URL' else source.name}..."):
                 try:
@@ -155,26 +150,20 @@ if st.session_state["ocr_result"]:
         col1, col2 = st.columns([1, 1])
         with col1:
             st.subheader(f"Input File {idx+1}")
-            if file_type == "PDF":
-                pdf_src = st.session_state["preview_src"][idx]
-                if pdf_src.startswith("http"):
-                    st.markdown(
-                        f'<a href="{pdf_src}" target="_blank" '
-                        f'style="font-size:18px;font-weight:bold;color:{PRIMARY_COLOR};text-decoration:underline;">'
-                        '📄 Open PDF in New Tab</a>',
-                        unsafe_allow_html=True
-                    )
-                    st.info("Click above to view or download the PDF in a new tab.")
-                else:
-                    st.info(
-                        "For security reasons, browsers block the preview and download of uploaded PDFs. "
-                        "Please save your file after upload, or use a PDF reader on your computer."
-                    )
+            pdf_src = st.session_state["preview_src"][idx]
+            if pdf_src.startswith("http"):
+                st.markdown(
+                    f'<a href="{pdf_src}" target="_blank" '
+                    f'style="font-size:18px;font-weight:bold;color:{PRIMARY_COLOR};text-decoration:underline;">'
+                    '📄 Open PDF in New Tab</a>',
+                    unsafe_allow_html=True
+                )
+                st.info("Click above to view or download the PDF in a new tab.")
             else:
-                if source_type == "Local Upload" and st.session_state["image_bytes"]:
-                    st.image(st.session_state["image_bytes"][idx], use_column_width=True)
-                else:
-                    st.image(st.session_state["preview_src"][idx], use_column_width=True)
+                st.info(
+                    "For security reasons, browsers block the preview and download of uploaded PDFs. "
+                    "Please save your file after upload, or use a PDF reader on your computer."
+                )
         with col2:
             st.subheader(f"OCR Text Output {idx+1}")
 
