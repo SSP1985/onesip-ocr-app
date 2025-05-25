@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 APP_TITLE = "OneSIP OCR"
 APP_BRAND = "Made with ❤️ by OneSIP.in"
 APP_DESC = """
-Extract text from PDFs or images using Mistral OCR.
+Extract text from PDFs using Mistral OCR.
 No key required: Secure API is built-in for OneSIP users!
 """
 SIDEBAR_BG = "#F8FAFC"
@@ -46,7 +46,7 @@ with st.expander("About"):
 st.sidebar.markdown(
     f"<div style='background:{SIDEBAR_BG};padding:10px 15px;border-radius:15px;'>"
     "<h3>Welcome to OneSIP OCR</h3>"
-    "<p>Fast, accurate OCR for your PDFs and images.<br>No manual API key needed.</p>"
+    "<p>Fast, accurate OCR for your PDFs.<br>No manual API key needed.</p>"
     "</div>",
     unsafe_allow_html=True
 )
