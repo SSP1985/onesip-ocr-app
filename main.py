@@ -15,7 +15,7 @@ st.set_page_config(
 
 # 2️⃣ Your photo at the top
 st.image(
-    "https://drive.google.com/uc?id=1gTnx6qQB54f6KeF3bEP67-HOnhY4INPN",
+    "https://i.postimg.cc/9fsYsMxj/sudheer-Linkedin.jpg",
     width=120,
     caption="Sudheer Patibandla"
 )
