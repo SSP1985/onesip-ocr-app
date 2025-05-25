@@ -1,18 +1,4 @@
 import streamlit as st
-
-# --------- PAGE CONFIGURATION (MUST BE FIRST) ----------
-st.set_page_config(
-    layout="wide",
-    page_title="OneSIP OCR",
-    page_icon="📝"
-)
-# -------------------------------------------------------
-# Now you can display your image
-st.image("https://drive.google.com/uc?id=1gTnx6qQB54f6KeF3bEP67-HOnhY4INPN", width=120, caption="Sudheer Patibandla")
-
-# ...rest of your imports and code
-
-
 import os
 import base64
 import json
@@ -20,6 +6,21 @@ import time
 from mistralai import Mistral
 from dotenv import load_dotenv
 
+# 1️⃣ PAGE CONFIG: This must be the very first Streamlit command
+st.set_page_config(
+    layout="wide",
+    page_title="OneSIP OCR",
+    page_icon="📝"
+)
+
+# 2️⃣ Your photo at the top
+st.image(
+    "https://drive.google.com/uc?id=1gTnx6qQB54f6KeF3bEP67-HOnhY4INPN",
+    width=120,
+    caption="Sudheer Patibandla"
+)
+
+# ----------------- CUSTOMIZE HERE --------------------
 APP_TITLE = "OneSIP OCR"
 APP_BRAND = "Made with ❤️ by OneSIP.in"
 APP_DESC = """
@@ -29,14 +30,9 @@ No key required: Secure API is built-in for OneSIP users!
 SIDEBAR_BG = "#F8FAFC"
 PRIMARY_COLOR = "#3B82F6"
 MAX_UPLOAD_MB = 20
+# ------------------------------------------------------
 
-st.set_page_config(
-    layout="wide",
-    page_title=APP_TITLE,
-    page_icon="📝"
-)
-
-# ✨ Important notice for mobile users
+# ✨ Mobile upload tip
 st.info("**Mobile Upload Tip:** If file upload doesn't work, try using Firefox (Android) or Safari (iOS). Chrome may not support file upload on some devices.")
 
 st.markdown(f"<p style='color:red;font-size:13px;'>Maximum PDF file size allowed: {MAX_UPLOAD_MB} MB per file.</p>", unsafe_allow_html=True)
@@ -186,4 +182,3 @@ if st.session_state["ocr_result"]:
             create_download_link(json_data, "application/json", f"OCR_Output_{idx+1}.json")
 
 # (No risky CSS for input[type='file']!)
-
