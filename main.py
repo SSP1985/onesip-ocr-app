@@ -86,7 +86,8 @@ if clear_clicked:
     st.session_state["ocr_result"] = []
     st.session_state["preview_src"] = []
     st.session_state["image_bytes"] = []
-    st.experimental_rerun()
+    # No need for st.experimental_rerun()
+
 
 # --- Process logic ---
 if process_clicked:
